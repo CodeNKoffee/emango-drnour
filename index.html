@@ -1699,7 +1699,7 @@
               <div class="contact-icon"><i class="fa-solid fa-envelope"></i></div>
               <div>
                 <div class="contact-label" data-en="Email" data-ar="البريد الإلكتروني">Email</div>
-                <div class="contact-value"><a href="mailto:hatemthedev@gmail.com">hatemthedev@gmail.com</a></div>
+                <div class="contact-value"><a href="mailto:hatemthedev@gmail.com">musharbash.nn@gmail.com</a></div>
               </div>
             </div>
           </div>
@@ -1910,7 +1910,10 @@
 
         <!-- Form -->
         <div class="fade-up" style="transition-delay:.15s">
-          <form class="order-form" id="orderForm" novalidate>
+          <form class="order-form" id="orderForm" name="order" data-netlify="true" netlify-honeypot="bot-field"
+            novalidate>
+            <input type="hidden" name="form-name" value="order" />
+            <p class="hidden" style="display:none"><input name="bot-field" /></p>
             <div class="form-title" data-en="Order Your Plan" data-ar="اطلب خطتك الآن">Order Your Plan</div>
             <p class="form-subtitle"
               data-en="Fill in your details and upload your CliQ payment screenshot. Nour will confirm and send your PDF within 24 hours."
@@ -2037,7 +2040,7 @@
       </div>
       <div class="footer-links">
         <a href="tel:+962790081108"><i class="fa-solid fa-phone"></i> +962 79 008 1108</a>
-        <a href="mailto:hatemthedev@gmail.com"><i class="fa-solid fa-envelope"></i> hatemthedev@gmail.com</a>
+        <a href="mailto:hatemthedev@gmail.com"><i class="fa-solid fa-envelope"></i>musharbash.nn@gmail.com</a>
       </div>
       <div class="footer-copy">
         &copy; <span id="footer-year"></span>
@@ -2164,29 +2167,23 @@
       btn.disabled = true;
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>' + (lang === 'ar' ? 'جاري الإرسال...' : 'Sending...') + '</span>';
 
-      /* Build FormData for FormSubmit.co */
+      /* Build FormData for Netlify Forms */
       const fd = new FormData();
-      fd.append('Name', vals[0]);
-      fd.append('Email', vals[1]);
-      fd.append('Bank / App', vals[2]);
-      fd.append('CliQ Username', vals[3]);
-      fd.append('Plan Language', vals[4]);
-      fd.append('attachment', file);
+      fd.append('form-name', 'order');
+      fd.append('fullName', vals[0]);
+      fd.append('email', vals[1]);
+      fd.append('bankName', vals[2]);
+      fd.append('cliqUsername', vals[3]);
+      fd.append('planLanguage', vals[4]);
+      fd.append('transactionFile', file);
 
-      /* FormSubmit.co special fields */
-      fd.append('_subject', 'New Ramadan Plan Order — ' + vals[0]);
-      fd.append('_replyto', vals[1]);
-      fd.append('_captcha', 'false');
-      fd.append('_template', 'table');
-
-      /* ── FormSubmit.co (Free — Unlimited Submissions) ── */
-      fetch('https://formsubmit.co/ajax/hatemthedev@gmail.com', {
+      /* ── Netlify Forms (Free — File Uploads Supported) ── */
+      fetch('/', {
         method: 'POST',
         body: fd
       })
-        .then(r => r.json())
         .then(res => {
-          if (res.success) {
+          if (res.ok) {
             showSuccess(lang);
           } else {
             showFallback(lang, vals);
