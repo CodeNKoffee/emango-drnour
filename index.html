@@ -1910,10 +1910,14 @@
 
         <!-- Form -->
         <div class="fade-up" style="transition-delay:.15s">
-          <form class="order-form" id="orderForm" name="order" data-netlify="true" netlify-honeypot="bot-field"
-            novalidate>
-            <input type="hidden" name="form-name" value="order" />
-            <p class="hidden" style="display:none"><input name="bot-field" /></p>
+          <form class="order-form" id="orderForm" action="https://formsubmit.co/hatemthedev@gmail.com" method="POST"
+            enctype="multipart/form-data" novalidate>
+            <!-- FormSubmit config -->
+            <input type="hidden" name="_subject" id="fsSubject" value="New Ramadan Plan Order" />
+            <input type="hidden" name="_next" id="fsNext" value="" />
+            <input type="hidden" name="_captcha" value="false" />
+            <input type="hidden" name="_template" value="table" />
+            <input type="hidden" name="_replyto" id="fsReplyTo" value="" />
             <div class="form-title" data-en="Order Your Plan" data-ar="اطلب خطتك الآن">Order Your Plan</div>
             <p class="form-subtitle"
               data-en="Fill in your details and upload your CliQ payment screenshot. Nour will confirm and send your PDF within 24 hours."
@@ -1986,7 +1990,7 @@
               <label data-en="CliQ Transaction Screenshot" data-ar="صورة إيصال التحويل عبر CliQ">CliQ Transaction
                 Screenshot</label>
               <div class="upload-area" id="uploadArea">
-                <input type="file" id="transactionFile" name="transactionFile" accept="image/*,.pdf" required />
+                <input type="file" id="transactionFile" name="attachment" accept="image/*,.pdf" required />
                 <div class="upload-icon-fa"><i class="fa-solid fa-cloud-arrow-up"></i></div>
                 <div class="upload-text">
                   <strong data-en="Click to upload" data-ar="انقر للرفع">Click to upload</strong>
@@ -2167,30 +2171,21 @@
       btn.disabled = true;
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>' + (lang === 'ar' ? 'جاري الإرسال...' : 'Sending...') + '</span>';
 
-      /* Build FormData for Netlify Forms */
-      const fd = new FormData();
-      fd.append('form-name', 'order');
-      fd.append('fullName', vals[0]);
-      fd.append('email', vals[1]);
-      fd.append('bankName', vals[2]);
-      fd.append('cliqUsername', vals[3]);
-      fd.append('planLanguage', vals[4]);
-      fd.append('transactionFile', file);
+      /* Set dynamic FormSubmit fields */
+      document.getElementById('fsSubject').value = 'New Ramadan Plan Order — ' + vals[0];
+      document.getElementById('fsNext').value = window.location.origin + '/?submitted=true';
+      document.getElementById('fsReplyTo').value = vals[1];
 
-      /* ── Netlify Forms (Free — File Uploads Supported) ── */
-      fetch('/', {
-        method: 'POST',
-        body: fd
-      })
-        .then(res => {
-          if (res.ok) {
-            showSuccess(lang);
-          } else {
-            showFallback(lang, vals);
-          }
-        })
-        .catch(() => showFallback(lang, vals));
+      /* Submit natively — file attachment included */
+      this.submit();
     });
+
+    /* Detect redirect back from FormSubmit */
+    if (window.location.search.includes('submitted=true')) {
+      const lang = document.documentElement.getAttribute('lang') || 'en';
+      showSuccess(lang);
+      history.replaceState(null, '', window.location.pathname);
+    }
 
     function showSuccess(lang) {
       const btn = document.getElementById('submitBtn');
