@@ -9,110 +9,114 @@ Customer pays 100 JD via CliQ → uploads the screenshot → Nour gets an email 
 
 ```
 DrNour/
-├── index.html                   ← The full landing page (HTML + CSS + JS, all-in-one)
-├── mu-plugin/
-│   └── nm-order-handler.php     ← WordPress backend that receives the form & emails you
+├── index.html                   ← The full landing page (just this one file)
 └── README.md                    ← You are here
 ```
 
-**Two files. That's all you need.**
+**One file. That's it.**
+
+No WordPress, no PHP, no Elementor. Pure HTML that works anywhere.
 
 ---
 
-## Does the Upload & Email Actually Work?
-
-**Yes.** Here's what happens when a customer submits the form:
+## How the Form Works
 
 ```
-Customer clicks Submit
+Customer fills in all fields + uploads screenshot
         │
         ▼
-  JavaScript validates all 6 fields + screenshot
+  JavaScript validates everything client-side
         │
         ▼
-  Sends everything to WordPress (admin-ajax.php)
+  Sends to FormSubmit.co (free service, unlimited submissions)
         │
         ▼
-  nm-order-handler.php receives it:
-    1. Validates all fields server-side
-    2. Saves the screenshot to wp-content/uploads/
-    3. Composes an email with all order details
-    4. Attaches the screenshot file
-    5. Sends it via wp_mail()
+  FormSubmit emails you:
+    • Name, Email, Bank, CliQ Username, Plan Language
+    • Payment screenshot attached
         │
         ▼
-  You get an email with:
-    • Customer name, email, bank, CliQ username, plan language
-    • The payment screenshot attached
+  Customer sees green "Success!" message
+  If anything fails → fallback "Email Nour directly" with mailto link
 ```
-
-If something goes wrong (server error, network issue), the form **automatically** shows a fallback message asking the customer to email Dr Nour directly with a pre-filled `mailto:` link.
 
 ---
 
-## Step-by-Step: Hostinger Direct Upload (No Elementor)
+## Deploy on Netlify (Free — 2 Minutes)
 
-Since Elementor can be glitchy, we will bypass it entirely and upload the HTML directly.
+### Step 1: Go to Netlify Drop
 
-### Step 1: Create a WordPress Site on Hostinger
+1. Open **[app.netlify.com/drop](https://app.netlify.com/drop)** in your browser
+2. If you don't have an account, sign up (free)
 
-1. Log in to **hPanel** (Hostinger dashboard)
-2. Create a WordPress site (e.g. `drnourmusharbash.com`)
-3. Note down your **WordPress admin URL**: `https://yourdomain.com/wp-admin`
+### Step 2: Create a Deploy Folder
 
-### Step 2: Upload the Backend Plugin (nm-order-handler.php)
+1. On your Desktop, create a folder called `drnour`
+2. Copy `index.html` into that folder
+3. That's it — just one file in one folder
 
-This handles the form submission. It must go into the `mu-plugins` folder.
+### Step 3: Drag & Drop
 
-1. In **hPanel**, go to **Files** → **File Manager**
-2. Navigate to: `public_html/wp-content/`
-3. Create a **New Folder** named `mu-plugins` (if it doesn't exist)
-4. Open `mu-plugins` and upload `nm-order-handler.php` from this folder
-5. Done! ✅
+1. Drag the entire `drnour` folder onto the Netlify Drop page
+2. Wait 5 seconds
+3. You get a URL like: `https://random-name-12345.netlify.app`
+4. **Done! Your site is live!** ✅
 
-### Step 3: Upload the Landing Page (index.html)
+### Step 4 (Optional): Custom Subdomain
 
-This is the main website file.
+1. In Netlify, go to **Site Settings** → **Domain management**
+2. Click **Change site name**
+3. Type something like `drnour` → now your URL is `https://drnour.netlify.app`
 
-1. In **File Manager**, go back to `public_html` (the root folder)
-2. Upload `index.html` directly here
-3. **Important Check:**
-   - Look for a file named `index.php` in the same folder.
-   - **Rename** it to `index_wp_backup.php` (this ensures `index.html` loads first).
-   - Do NOT delete it, just rename it.
-4. Done! ✅
+---
 
-Now visit `drnourmusharbash.com`. It should load your new landing page instantly.
+## Activate FormSubmit (One-Time — 30 Seconds)
 
-> **Note:** Even though we bypassed the WordPress theme, the form STILL talks to WordPress (`/wp-admin/admin-ajax.php`) to send emails. It's the best of both worlds: Static HTML speed + WordPress robust backend.
+FormSubmit.co requires email confirmation the **very first time** someone submits the form.
 
-### Step 4: Set Up Email Delivery (Recommended)
+1. Go to your live site
+2. Fill in test data in all fields and upload any image
+3. Click **Submit**
+4. Check your email inbox (`hatemthedev@gmail.com`) for a **confirmation email from FormSubmit**
+5. Click the **confirmation link** in that email
+6. Done! All future submissions will arrive automatically ✅
 
-WordPress uses PHP `mail()` by default, which **Hostinger may block or send to spam**. To make sure order emails arrive reliably:
-
-1. Go to `wp-admin` → **Plugins** → **Add New**
-2. See if you can log in at `yourdomain.com/wp-admin` (it should still work even with index.html)
-3. Search for **"WP Mail SMTP"** → Install & Activate
-4. Follow the setup wizard with Hostinger's SMTP settings:
-   - **Host**: `smtp.hostinger.com`
-   - **Port**: `465` (SSL)
-   - **Username/Password**: Your Hostinger email credentials
-5. Send a **test email** to verify it works
+> **Important:** You only need to do this ONCE. After confirming, all submissions go straight to your inbox — no limits, no charges.
 
 ---
 
 ## Changing the Recipient Email
 
-The email address that receives orders is set in `nm-order-handler.php` on **line 49**.
+When you're ready to go live with Dr Nour's real email, open `index.html` and search for:
 
-Currently it's set to a test email. **Before going live**, change it back to the real one:
-
-```php
-// Change this:
-$to = 'hatemthedev@gmail.com';
-
-// To:
-$to = 'musharbash.nn@gmail.com';
+```
+hatemthedev@gmail.com
 ```
 
-Then re-upload the file to `mu-plugins/` (overwrite the old one).
+Replace every occurrence with:
+
+```
+musharbash.nn@gmail.com
+```
+
+There are **5 places** to change (3 mailto links, 1 footer text, 1 FormSubmit URL).
+
+Then re-deploy by dragging the folder to Netlify again.
+
+> **Remember:** After changing the email, you need to do the FormSubmit confirmation step again with the new email address.
+
+---
+
+## FAQ
+
+| Question | Answer |
+|----------|--------|
+| **Cost?** | **$0** — Netlify free + FormSubmit free |
+| **Submission limits?** | **Unlimited** on FormSubmit |
+| **File uploads?** | Yes — screenshots attached to email |
+| **Will I get charged?** | No — Netlify free tier has 100GB bandwidth (way more than needed) |
+| **Mobile friendly?** | Yes — fully responsive |
+| **Arabic support?** | Yes — full RTL with language toggle |
+| **What if FormSubmit is down?** | Fallback shows "email Nour directly" with pre-filled mailto link |
+| **Can I use a custom domain?** | Yes — add it in Netlify Domain Management (requires DNS update) |
+| **How do I update the site?** | Edit `index.html`, drag the folder to Netlify again |

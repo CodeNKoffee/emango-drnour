@@ -2164,32 +2164,35 @@
       btn.disabled = true;
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>' + (lang === 'ar' ? 'جاري الإرسال...' : 'Sending...') + '</span>';
 
-      /* Build FormData for submission */
+      /* Build FormData for FormSubmit.co */
       const fd = new FormData();
-      fd.append('nm_name', vals[0]);
-      fd.append('nm_email', vals[1]);
-      fd.append('nm_bank', vals[2]);
-      fd.append('nm_cliq', vals[3]);
-      fd.append('nm_plan_lang', vals[4]);
-      fd.append('nm_file', file);
+      fd.append('Name', vals[0]);
+      fd.append('Email', vals[1]);
+      fd.append('Bank / App', vals[2]);
+      fd.append('CliQ Username', vals[3]);
+      fd.append('Plan Language', vals[4]);
+      fd.append('attachment', file);
 
-      /* ── WordPress AJAX (works for both WP-served and Static HTML) ── */
-      const ajaxUrl = (window.nmAjax && window.nmAjax.url) ? window.nmAjax.url : '/wp-admin/admin-ajax.php';
-      const nonce = (window.nmAjax && window.nmAjax.nonce) ? window.nmAjax.nonce : '';
+      /* FormSubmit.co special fields */
+      fd.append('_subject', 'New Ramadan Plan Order — ' + vals[0]);
+      fd.append('_replyto', vals[1]);
+      fd.append('_captcha', 'false');
+      fd.append('_template', 'table');
 
-      fd.append('action', 'nm_order');
-      fd.append('nonce', nonce);
-
-      fetch(ajaxUrl, { method: 'POST', body: fd })
+      /* ── FormSubmit.co (Free — Unlimited Submissions) ── */
+      fetch('https://formsubmit.co/ajax/hatemthedev@gmail.com', {
+        method: 'POST',
+        body: fd
+      })
         .then(r => r.json())
         .then(res => {
           if (res.success) {
             showSuccess(lang);
           } else {
-            showFallback(lang, vals); // Fallback if server returns error
+            showFallback(lang, vals);
           }
         })
-        .catch(() => showFallback(lang, vals)); // Fallback if network fails
+        .catch(() => showFallback(lang, vals));
     });
 
     function showSuccess(lang) {
